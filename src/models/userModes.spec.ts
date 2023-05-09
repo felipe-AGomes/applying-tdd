@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import {
 	DatabaseConnection,
 	DatabaseConnectionLocalMongo,
@@ -45,13 +44,12 @@ class UserRepositoryMongo implements IUserRepository {
 	}
 }
 
-const makeSut = () => {
-	const databaseConnectionLocalMongo = new DatabaseConnectionLocalMongo();
-	const sut = new UserRepositoryMongo(databaseConnectionLocalMongo);
-	return { sut, databaseConnectionLocalMongo };
-};
-
-describe('UserRepositoryMongo', () => {
+describe('UserRepositoryMongo.createUser', () => {
+	const makeSut = () => {
+		const databaseConnectionLocalMongo = new DatabaseConnectionLocalMongo();
+		const sut = new UserRepositoryMongo(databaseConnectionLocalMongo);
+		return { sut, databaseConnectionLocalMongo };
+	};
 	beforeAll(async () => {
 		const { databaseConnectionLocalMongo } = makeSut();
 		await databaseConnectionLocalMongo.connectDb();
