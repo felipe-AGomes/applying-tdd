@@ -15,6 +15,11 @@ interface IUserRepository {
 		message: string;
 		user?: any;
 	}>;
+	deleteUser(id: { id: string }): Promise<{
+		error: boolean;
+		message: string;
+		user?: any;
+	}>;
 }
 
 class UserRepositoryMongo implements IUserRepository {
@@ -42,14 +47,30 @@ class UserRepositoryMongo implements IUserRepository {
 			user: newUser,
 		};
 	}
+
+	async deleteUser({ id }: { id: string }): Promise<{
+		error: boolean;
+		message: string;
+		user?: any;
+	}> {
+		return {
+			error: false,
+			message: 'Usuário deletado com sucesso',
+			user: {
+				user: 'some_user_name',
+				email: 'some_user_email',
+			},
+		};
+	}
 }
 
+const makeSut = () => {
+	const databaseConnectionLocalMongo = new DatabaseConnectionLocalMongo();
+	const sut = new UserRepositoryMongo(databaseConnectionLocalMongo);
+	return { sut, databaseConnectionLocalMongo };
+};
+
 describe('UserRepositoryMongo.createUser', () => {
-	const makeSut = () => {
-		const databaseConnectionLocalMongo = new DatabaseConnectionLocalMongo();
-		const sut = new UserRepositoryMongo(databaseConnectionLocalMongo);
-		return { sut, databaseConnectionLocalMongo };
-	};
 	beforeAll(async () => {
 		const { databaseConnectionLocalMongo } = makeSut();
 		await databaseConnectionLocalMongo.connectDb();
@@ -91,5 +112,18 @@ describe('UserRepositoryMongo.createUser', () => {
 			error: true,
 			message: 'Usuário já existe',
 		});
+	});
+});
+
+describe('UserRepositoryMongo.deleteUser', () => {
+	it('should return the user that will be deleted if called with the correct parameters', async () => {
+		const { sut } = makeSut();
+
+		const result = await sut.deleteUser({ id: 'some_aleatory_id' });
+
+		expect(result).toHaveProperty('error', false);
+		expect(result).toHaveProperty('message', 'Usuário deletado com sucesso');
+		expect(result.user).toHaveProperty('user', 'some_user_name');
+		expect(result.user).toHaveProperty('email', 'some_user_email');
 	});
 });
