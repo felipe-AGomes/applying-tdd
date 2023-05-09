@@ -33,6 +33,7 @@ class UserRepositoryMongo implements IUserRepository {
 		const userData = await User.find({ email: user.email });
 
 		if (userData.length > 0) {
+			console.log(userData);
 			return {
 				error: true,
 				message: 'Usuário já existe',
@@ -41,6 +42,7 @@ class UserRepositoryMongo implements IUserRepository {
 
 		const newUser = await User.create(user);
 
+		await this.DatabaseConnection.disconnectDb();
 		return {
 			error: false,
 			message: 'Usuário cadastrado com sucesso',
@@ -53,6 +55,19 @@ class UserRepositoryMongo implements IUserRepository {
 		message: string;
 		user?: any;
 	}> {
+		await this.DatabaseConnection.connectDb();
+		const userData = await User.findById(id);
+
+		if (!userData) {
+			return {
+				error: true,
+				message: 'Usuário não encontrado',
+			};
+		}
+
+		await User.findByIdAndDelete(id);
+
+		await this.DatabaseConnection.disconnectDb();
 		return {
 			error: false,
 			message: 'Usuário deletado com sucesso',
@@ -80,6 +95,10 @@ describe('UserRepositoryMongo.createUser', () => {
 		});
 	});
 
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	afterAll(async () => {
 		const { databaseConnectionLocalMongo } = makeSut();
 		await User.deleteMany({});
@@ -93,6 +112,8 @@ describe('UserRepositoryMongo.createUser', () => {
 			email: 'some_user_email',
 			user: 'some_user_name',
 		});
+
+		console.log(result);
 
 		expect(result).toHaveProperty('error', false);
 		expect(result).toHaveProperty('message', 'Usuário cadastrado com sucesso');
@@ -116,14 +137,49 @@ describe('UserRepositoryMongo.createUser', () => {
 });
 
 describe('UserRepositoryMongo.deleteUser', () => {
+	beforeAll(async () => {
+		const { databaseConnectionLocalMongo } = makeSut();
+		await databaseConnectionLocalMongo.connectDb();
+		await User.create({
+			email: 'some_email_already_exists',
+			user: 'some_user_name',
+		});
+	});
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	afterAll(async () => {
+		const { databaseConnectionLocalMongo } = makeSut();
+		await User.deleteMany({});
+		await databaseConnectionLocalMongo.disconnectDb();
+	});
+
 	it('should return the user that will be deleted if called with the correct parameters', async () => {
+		User.findById = jest.fn().mockResolvedValue({
+			id: 'some_user_id',
+			user: 'some_user_name',
+			email: 'some_user_email',
+		});
+		User.findByIdAndDelete = jest.fn().mockResolvedValue(undefined);
 		const { sut } = makeSut();
 
-		const result = await sut.deleteUser({ id: 'some_aleatory_id' });
+		const result = await sut.deleteUser({ id: '645a7ac6274755f2baebe72a' });
 
 		expect(result).toHaveProperty('error', false);
 		expect(result).toHaveProperty('message', 'Usuário deletado com sucesso');
 		expect(result.user).toHaveProperty('user', 'some_user_name');
 		expect(result.user).toHaveProperty('email', 'some_user_email');
+	});
+
+	it('should return an error if a user not exists', async () => {
+		User.findById = jest.fn().mockResolvedValue(null);
+		const { sut } = makeSut();
+
+		const result = await sut.deleteUser({ id: '645a7ac6274755f2baebe72a2' });
+
+		expect(result).toHaveProperty('error', true);
+		expect(result).toHaveProperty('message', 'Usuário não encontrado');
 	});
 });
