@@ -1,0 +1,29 @@
+{
+  "name": "applying-tdd",
+  "description": "teste",
+  "version": "1.0.0",
+  "main": "jest.config.js",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.1",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipe-AGomes/applying-tdd.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/felipe-AGomes/applying-tdd/issues"
+  },
+  "homepage": "https://github.com/felipe-AGomes/applying-tdd#readme"
+}
