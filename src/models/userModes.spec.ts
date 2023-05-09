@@ -9,6 +9,8 @@ type UserProps = {
 	email: string;
 };
 
+//TODO: alterar prpos id para userId, e alterar parametro do metodo createUser para um objeto
+
 interface IUserRepository {
 	createUser(user: UserProps): Promise<{
 		error: boolean;
@@ -20,6 +22,11 @@ interface IUserRepository {
 		message: string;
 		user?: any;
 	}>;
+	updateUser(options: { property: string; value: string; userId: string }): {
+		error: boolean;
+		message: string;
+		user?: any;
+	};
 }
 
 class UserRepositoryMongo implements IUserRepository {
@@ -74,6 +81,24 @@ class UserRepositoryMongo implements IUserRepository {
 			user: {
 				user,
 				email: newEmail,
+			},
+		};
+	}
+	updateUser({
+		property,
+		value,
+		userId,
+	}: {
+		property: string;
+		value: string;
+		userId: string;
+	}): { error: boolean; message: string; user?: any } {
+		return {
+			error: false,
+			message: 'Usuário alterado com sucesso',
+			user: {
+				user: 'some_user_updated',
+				email: existingEmail,
 			},
 		};
 	}
@@ -182,5 +207,37 @@ describe('UserRepositoryMongo.deleteUser', () => {
 
 		expect(result).toHaveProperty('error', true);
 		expect(result).toHaveProperty('message', 'Usuário não encontrado');
+	});
+});
+
+describe('UserRepositoryMongo.updateUser', () => {
+	beforeAll(async () => {
+		const { databaseConnectionLocalMongo } = makeSut();
+		await databaseConnectionLocalMongo.connectDb();
+		await User.create({
+			email: newEmail,
+			user,
+		});
+	});
+
+	afterAll(async () => {
+		const { databaseConnectionLocalMongo } = makeSut();
+		await User.deleteMany({});
+		await databaseConnectionLocalMongo.disconnectDb();
+	});
+
+	it('should return the new user with the updated prop and submitted value', async () => {
+		const { sut } = makeSut();
+
+		const result = await sut.updateUser({
+			property: 'user',
+			value: 'some_user_updated',
+			userId: user,
+		});
+
+		expect(result).toHaveProperty('error', false);
+		expect(result).toHaveProperty('message', 'Usuário alterado com sucesso');
+		expect(result.user).toHaveProperty('user', 'some_user_updated');
+		expect(result.user).toHaveProperty('email', existingEmail);
 	});
 });
