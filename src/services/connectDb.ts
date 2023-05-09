@@ -1,14 +1,16 @@
 import mongoose from 'mongoose';
 
 export interface DatabaseConnection {
-	connectDb(url: { url: string }): Promise<void>;
+	url: string;
+	connectDb(): Promise<void>;
 	disconnectDb(): Promise<void>;
 }
 
-export class DatabaseConnectionMongo implements DatabaseConnection {
-	async connectDb({ url }: { url: string }): Promise<void> {
+export class DatabaseConnectionLocalMongo implements DatabaseConnection {
+	url: string = 'mongodb://localhost:27017';
+	async connectDb(): Promise<void> {
 		try {
-			await mongoose.connect(url);
+			await mongoose.connect(this.url);
 			console.log('Conectado ao banco de dados');
 		} catch (err) {
 			throw new Error(`Error: ${err}`);

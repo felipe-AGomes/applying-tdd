@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { DatabaseConnectionMongo } from './connectDb';
+import { DatabaseConnectionLocalMongo } from './connectDb';
 
 const makeSut = () => {
-	const sut = new DatabaseConnectionMongo();
+	const sut = new DatabaseConnectionLocalMongo();
 	return sut;
 };
 
@@ -15,22 +15,18 @@ describe('DatabaseConnectionMongo', () => {
 	it('should display on console.log "Conectado ao banco de dados"', async () => {
 		const consoleLogSpy = jest.spyOn(console, 'log');
 		const sut = makeSut();
-		const url = 'mongodb://localhost:27017';
 
-		await sut.connectDb({ url });
+		await sut.connectDb();
 
 		expect(consoleLogSpy).toBeCalledWith('Conectado ao banco de dados');
 	});
 	it('should trhow an error if wrong url is called', async () => {
 		const sut = makeSut();
-		const invalidUrl = { url: 'some_wrong_url' };
 		jest
 			.spyOn(mongoose, 'connect')
 			.mockRejectedValueOnce(new Error('connection error'));
 
-		await expect(sut.connectDb(invalidUrl)).rejects.toThrow(
-			'Error: connection error'
-		);
+		await expect(sut.connectDb()).rejects.toThrow('Error: connection error');
 	});
 
 	it('should call mongoose.disconnect', async () => {

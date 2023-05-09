@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 const userSchema = new Schema(
 	{
-		userName: {
+		user: {
 			type: String,
 			require: true,
 		},
@@ -20,7 +20,7 @@ let User: mongoose.Model<
 		createdAt: NativeDate;
 		updatedAt: NativeDate;
 	} & {
-		userName?: string;
+		user?: string;
 		email?: string;
 	}
 >;
