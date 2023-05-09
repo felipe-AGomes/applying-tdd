@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1683653564655" clover="3.2.0">
+  <project timestamp="1683653564655" name="All files">
+    <metrics statements="15" coveredstatements="14" conditionals="2" coveredconditionals="1" methods="3" coveredmethods="3" elements="20" coveredelements="18" complexity="0" loc="15" ncloc="15" packages="2" files="2" classes="2"/>
+    <package name="models.collections">
+      <metrics statements="7" coveredstatements="6" conditionals="2" coveredconditionals="1" methods="0" coveredmethods="0"/>
+      <file name="UserCollection.ts" path="C:\Users\falme\OneDrive\Documentos\GitHub\applying-tdd\src\models\collections\UserCollection.ts">
+        <metrics statements="7" coveredstatements="6" conditionals="2" coveredconditionals="1" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="28" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="services">
+      <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+      <file name="connectDb.ts" path="C:\Users\falme\OneDrive\Documentos\GitHub\applying-tdd\src\services\connectDb.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="12" type="stmt"/>
+        <line num="12" count="8" type="stmt"/>
+        <line num="13" count="8" type="stmt"/>
+        <line num="14" count="7" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="21" count="6" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

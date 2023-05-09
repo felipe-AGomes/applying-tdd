@@ -72,8 +72,8 @@ class UserRepositoryMongo implements IUserRepository {
 			error: false,
 			message: 'Usuário deletado com sucesso',
 			user: {
-				user: 'some_user_name',
-				email: 'some_user_email',
+				user,
+				email: newEmail,
 			},
 		};
 	}
@@ -84,14 +84,17 @@ const makeSut = () => {
 	const sut = new UserRepositoryMongo(databaseConnectionLocalMongo);
 	return { sut, databaseConnectionLocalMongo };
 };
+const user = 'some_user_name';
+const newEmail = 'some_user_email';
+const existingEmail = 'some_existing_email';
 
 describe('UserRepositoryMongo.createUser', () => {
 	beforeAll(async () => {
 		const { databaseConnectionLocalMongo } = makeSut();
 		await databaseConnectionLocalMongo.connectDb();
 		await User.create({
-			email: 'some_email_already_exists',
-			user: 'some_user_name',
+			email: existingEmail,
+			user,
 		});
 	});
 
@@ -109,24 +112,22 @@ describe('UserRepositoryMongo.createUser', () => {
 		const { sut } = makeSut();
 
 		const result = await sut.createUser({
-			email: 'some_user_email',
-			user: 'some_user_name',
+			email: newEmail,
+			user,
 		});
-
-		console.log(result);
 
 		expect(result).toHaveProperty('error', false);
 		expect(result).toHaveProperty('message', 'Usuário cadastrado com sucesso');
-		expect(result.user).toHaveProperty('email', 'some_user_email');
-		expect(result.user).toHaveProperty('user', 'some_user_name');
+		expect(result.user).toHaveProperty('email', newEmail);
+		expect(result.user).toHaveProperty('user', user);
 	});
 
 	it('should return an error when a user already exists ', async () => {
 		const { sut } = makeSut();
 
 		const result = await sut.createUser({
-			email: 'some_email_already_exists',
-			user: 'some_user_name',
+			email: existingEmail,
+			user,
 		});
 
 		expect(result).toEqual({
@@ -141,8 +142,8 @@ describe('UserRepositoryMongo.deleteUser', () => {
 		const { databaseConnectionLocalMongo } = makeSut();
 		await databaseConnectionLocalMongo.connectDb();
 		await User.create({
-			email: 'some_email_already_exists',
-			user: 'some_user_name',
+			email: newEmail,
+			user,
 		});
 	});
 
@@ -159,8 +160,8 @@ describe('UserRepositoryMongo.deleteUser', () => {
 	it('should return the user that will be deleted if called with the correct parameters', async () => {
 		User.findById = jest.fn().mockResolvedValue({
 			id: 'some_user_id',
-			user: 'some_user_name',
-			email: 'some_user_email',
+			email: newEmail,
+			user,
 		});
 		User.findByIdAndDelete = jest.fn().mockResolvedValue(undefined);
 		const { sut } = makeSut();
@@ -169,8 +170,8 @@ describe('UserRepositoryMongo.deleteUser', () => {
 
 		expect(result).toHaveProperty('error', false);
 		expect(result).toHaveProperty('message', 'Usuário deletado com sucesso');
-		expect(result.user).toHaveProperty('user', 'some_user_name');
-		expect(result.user).toHaveProperty('email', 'some_user_email');
+		expect(result.user).toHaveProperty('user', user);
+		expect(result.user).toHaveProperty('email', newEmail);
 	});
 
 	it('should return an error if a user not exists', async () => {
