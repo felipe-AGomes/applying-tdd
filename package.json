@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "main": "jest.config.js",
   "dependencies": {
+    "mongoose": "^7.1.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
