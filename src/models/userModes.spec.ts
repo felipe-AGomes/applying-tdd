@@ -12,12 +12,12 @@ type UserProps = {
 //TODO: alterar prpos id para userId, e alterar parametro do metodo createUser para um objeto
 
 interface IUserRepository {
-	createUser(user: UserProps): Promise<{
+	createUser(userData: { user: UserProps }): Promise<{
 		error: boolean;
 		message: string;
 		user?: any;
 	}>;
-	deleteUser(id: { id: string }): Promise<{
+	deleteUser(userId: { id: string }): Promise<{
 		error: boolean;
 		message: string;
 		user?: any;
@@ -31,25 +31,25 @@ interface IUserRepository {
 
 class UserRepositoryMongo implements IUserRepository {
 	constructor(private readonly DatabaseConnection: DatabaseConnection) {}
-	async createUser(user: UserProps): Promise<{
+	async createUser(userData: { user: UserProps }): Promise<{
 		error: boolean;
 		message: string;
 		user?: any;
 	}> {
 		await this.DatabaseConnection.connectDb();
-		const userData = await User.find({ email: user.email });
+		const user = await User.findOne({ email: userData.user.email });
 
-		if (userData.length > 0) {
-			console.log(userData);
+		if (user) {
 			return {
 				error: true,
 				message: 'Usuário já existe',
 			};
 		}
 
-		const newUser = await User.create(user);
-
+		const newUser = await User.create(userData.user);
 		await this.DatabaseConnection.disconnectDb();
+		console.log(newUser);
+
 		return {
 			error: false,
 			message: 'Usuário cadastrado com sucesso',
@@ -57,13 +57,13 @@ class UserRepositoryMongo implements IUserRepository {
 		};
 	}
 
-	async deleteUser({ id }: { id: string }): Promise<{
+	async deleteUser(userId: { id: string }): Promise<{
 		error: boolean;
 		message: string;
 		user?: any;
 	}> {
 		await this.DatabaseConnection.connectDb();
-		const userData = await User.findById(id);
+		const userData = await User.findById(userId.id);
 
 		if (!userData) {
 			return {
@@ -72,7 +72,7 @@ class UserRepositoryMongo implements IUserRepository {
 			};
 		}
 
-		await User.findByIdAndDelete(id);
+		await User.findByIdAndDelete(userId.id);
 
 		await this.DatabaseConnection.disconnectDb();
 		return {
@@ -84,15 +84,11 @@ class UserRepositoryMongo implements IUserRepository {
 			},
 		};
 	}
-	updateUser({
-		property,
-		value,
-		userId,
-	}: {
-		property: string;
-		value: string;
-		userId: string;
-	}): { error: boolean; message: string; user?: any } {
+	updateUser(options: { property: string; value: string; userId: string }): {
+		error: boolean;
+		message: string;
+		user?: any;
+	} {
 		return {
 			error: false,
 			message: 'Usuário alterado com sucesso',
@@ -136,10 +132,7 @@ describe('UserRepositoryMongo.createUser', () => {
 	it('should return an user when is called with a correct parameters', async () => {
 		const { sut } = makeSut();
 
-		const result = await sut.createUser({
-			email: newEmail,
-			user,
-		});
+		const result = await sut.createUser({ user: { email: newEmail, user } });
 
 		expect(result).toHaveProperty('error', false);
 		expect(result).toHaveProperty('message', 'Usuário cadastrado com sucesso');
@@ -147,12 +140,11 @@ describe('UserRepositoryMongo.createUser', () => {
 		expect(result.user).toHaveProperty('user', user);
 	});
 
-	it('should return an error when a user already exists ', async () => {
+	it('should return an error when a email already exists ', async () => {
 		const { sut } = makeSut();
 
 		const result = await sut.createUser({
-			email: existingEmail,
-			user,
+			user: { email: existingEmail, user },
 		});
 
 		expect(result).toEqual({
